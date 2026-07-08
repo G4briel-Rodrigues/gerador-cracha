@@ -1,0 +1,130 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    background-color: #2d2d2d;
+    color: white;
+    margin: 0;
+    padding: 20px;
+    gap: 20px;
+}
+
+.painel-esquerdo {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 300px;
+}
+
+.controles, .controles-ajuste {
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.controles h2, .controles-ajuste h2 { margin-top: 0; font-size: 18px; }
+
+input[type="text"], input[type="file"], button {
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.controles-ajuste label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+input[type="range"] {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+button:hover { background-color: #0056b3; }
+.btn-adicionar { background-color: #17a2b8; padding: 15px; font-size: 16px; }
+.btn-adicionar:hover { background-color: #138496; }
+.btn-exportar { background-color: #28a745; }
+.btn-exportar:hover { background-color: #218838; }
+
+.area-preview {
+    background: #1e1e1e;
+    padding: 30px; 
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Adicionamos isso para o painel do meio poder crescer bastante */
+    flex-grow: 0.5; 
+}
+
+#previewCanvas {
+    width: 480px; /* A MÁGICA AQUI: Quase o dobro do tamanho antigo (250px)! */
+    max-width: 100%; 
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.8); /* Deixei a sombra mais elegante */
+    cursor: crosshair; 
+    transition: transform 0.2s ease; /* Efeito suave se você quiser colocar hover depois */
+}
+
+.area-impressao {
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: 90vh;
+}
+
+.folha-a4 {
+    background: white;
+    width: 794px; 
+    min-height: 1123px; 
+    padding: 30px; 
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: flex-start; 
+    gap: 25px; 
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.cracha-item {
+    position: relative;
+    width: 222px; 
+    display: inline-block;
+}
+
+.cracha-item canvas {
+    width: 100%;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: block;
+}
+
+.btn-excluir {
+    position: absolute !important;
+    top: 5px !important;
+    right: 5px !important;
+    background: transparent !important; 
+    border: none !important;
+    font-size: 24px !important; 
+    cursor: pointer !important;
+    z-index: 10 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: auto !important; 
+    height: auto !important;
+    box-shadow: none !important;
+    display: inline-block !important;
+    transition: transform 0.2s ease !important; 
+}
+
+.btn-excluir:hover { transform: scale(1.2) !important; }
