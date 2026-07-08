@@ -4,25 +4,24 @@ const modeloImg = new Image();
 modeloImg.src = 'modelo3.0.png';
 
 let fotoAtual = null;
-let fotoOriginal = null; // AQUI ESTÁ O SEGREDO: Guardamos a foto com fundo!
+let fotoOriginal = null; 
 let isDrawing = false;
 let eraserPaths = [];
 let currentStroke = [];
-let currentMode = 'erase'; // Modo inicial da borracha
+let currentMode = 'erase'; 
 
-// Controla as cores dos botões de Apagar/Recuperar
 function setMode(mode) {
     currentMode = mode;
     if (mode === 'erase') {
         document.getElementById('btnErase').style.border = '2px solid white';
-        document.getElementById('btnErase').style.backgroundColor = '#007bff'; // Azul
+        document.getElementById('btnErase').style.backgroundColor = '#007bff'; 
         document.getElementById('btnRestore').style.border = 'none';
-        document.getElementById('btnRestore').style.backgroundColor = '#555'; // Cinza
+        document.getElementById('btnRestore').style.backgroundColor = '#555'; 
     } else {
         document.getElementById('btnRestore').style.border = '2px solid white';
-        document.getElementById('btnRestore').style.backgroundColor = '#28a745'; // Verde
+        document.getElementById('btnRestore').style.backgroundColor = '#28a745'; 
         document.getElementById('btnErase').style.border = 'none';
-        document.getElementById('btnErase').style.backgroundColor = '#555'; // Cinza
+        document.getElementById('btnErase').style.backgroundColor = '#555'; 
     }
 }
 
@@ -36,19 +35,14 @@ async function processarFoto() {
     const msg = document.getElementById('loadingMsg');
     msg.style.display = 'block';
 
-    // Salva a foto original INTACTA (com o fundo) para podermos recuperar depois
     fotoOriginal = new Image();
     fotoOriginal.src = URL.createObjectURL(fileInput);
 
     try {
-        // ==========================================
-        // A MÁGICA DA IA (Com a bússola configurada!)
-        // ==========================================
         const config = {
             publicPath: "https://staticimgly.com/@imgly/background-removal-data/1.4.5/dist/"
         };
         
-        // Passamos a configuração junto com a foto
         const blob = await imglyRemoveBackground(fileInput, config);
         const fotoSemFundoUrl = URL.createObjectURL(blob);
         
@@ -70,9 +64,6 @@ async function processarFoto() {
     }
 }
 
-// ==========================================
-// MATEMÁTICA DA BORRACHA E RECUPERAÇÃO
-// ==========================================
 function getFotoTransform() {
     const canvas = document.getElementById('previewCanvas');
     const centroX = canvas.width / 2;
@@ -113,7 +104,6 @@ function addPoint(e) {
     const size = document.getElementById('brushSize').value;
     const soft = document.getElementById('brushSoft').value; 
     
-    // Adiciona o modo atual (apagar ou recuperar) no rastro
     currentStroke.push({x: localX, y: localY, size: size, soft: soft, mode: currentMode}); 
     renderizarPreview();
 }
@@ -164,7 +154,6 @@ function renderizarPreview() {
         fotoCanvas.height = canvas.height;
         const fotoCtx = fotoCanvas.getContext('2d');
 
-        // Um canvas invisível para fazermos a máscara de recuperação perfeita
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = canvas.width;
         tempCanvas.height = canvas.height;
@@ -178,9 +167,6 @@ function renderizarPreview() {
             if (stroke.length === 0) return;
             
             if (stroke[0].mode === 'erase') {
-                // ==============================
-                // MODO APAGAR (Fura a foto atual)
-                // ==============================
                 fotoCtx.globalCompositeOperation = 'destination-out';
                 fotoCtx.lineCap = 'round';
                 fotoCtx.lineJoin = 'round';
@@ -203,9 +189,8 @@ function renderizarPreview() {
                 fotoCtx.restore();
 
             } else {
-                // ==============================
-                // MODO RECUPERAR (Usa o pincel como estêncil da foto original)
-                // ==============================
+                // AQUI TÁ A CORREÇÃO MÁGICA!
+                tempCtx.globalCompositeOperation = 'source-over'; // Reseta o pincel
                 tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
                 
                 tempCtx.lineCap = 'round';
@@ -215,7 +200,6 @@ function renderizarPreview() {
                 tempCtx.translate(offsetX, offsetY);
                 tempCtx.scale(scale, scale);
 
-                // 1. Desenha o rastro do pincel no canvas temporário
                 tempCtx.beginPath();
                 tempCtx.lineWidth = stroke[0].size / scale; 
                 tempCtx.shadowBlur = stroke[0].soft / scale; 
@@ -227,17 +211,14 @@ function renderizarPreview() {
                     tempCtx.lineTo(stroke[i].x, stroke[i].y);
                 }
                 tempCtx.stroke();
+                tempCtx.restore(); 
 
-                // 2. Transforma o pincel numa "máscara"
                 tempCtx.globalCompositeOperation = 'source-in';
-                tempCtx.shadowBlur = 0; // Desliga a sombra para não embaçar a foto
+                tempCtx.shadowBlur = 0; 
                 
-                // 3. Cola a foto ORIGINAL (com fundo) preenchendo apenas onde o pincel passou!
-                tempCtx.drawImage(fotoOriginal, 0, 0, fotoOriginal.width, fotoOriginal.height);
+                // Cola a foto original com as medidas milimetricamente exatas da foto atual
+                tempCtx.drawImage(fotoOriginal, offsetX, offsetY, newWidth, newHeight);
                 
-                tempCtx.restore();
-
-                // 4. Joga esse "remendo" restaurado por cima da foto do crachá
                 fotoCtx.globalCompositeOperation = 'source-over';
                 fotoCtx.drawImage(tempCanvas, 0, 0);
             }
