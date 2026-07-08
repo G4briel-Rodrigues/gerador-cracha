@@ -44,6 +44,11 @@
             <h2>3. Borracha Mágica 🪄</h2>
             <p style="font-size: 12px; margin-top: 0; color: #ccc;">Passe no crachá para arredondar cortes e suavizar os ombros.</p>
             
+            <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+                <button id="btnErase" onclick="setMode('erase')" style="background-color: #007bff; flex: 1; border: 2px solid white;">Apagar</button>
+                <button id="btnRestore" onclick="setMode('restore')" style="background-color: #555; flex: 1; border: none;">Recuperar</button>
+            </div>
+            
             <label>Tamanho do Pincel: <span id="brushSizeVal">30</span>px</label>
             <input type="range" id="brushSize" min="5" max="100" value="30" oninput="document.getElementById('brushSizeVal').innerText = this.value">
             
