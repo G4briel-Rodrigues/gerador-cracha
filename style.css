@@ -156,3 +156,26 @@ button:hover { background-color: #0056b3; }
 }
 
 .btn-excluir:hover { transform: scale(1.2) !important; }
+
+/* ========================================= */
+/* BOTÃO DE EDITAR / VOLTAR (NOVO) */
+/* ========================================= */
+.btn-editar {
+    position: absolute !important;
+    top: 5px !important;
+    left: 5px !important; /* Lado esquerdo para não encostar na lixeira */
+    background: transparent !important; 
+    border: none !important;
+    font-size: 24px !important; 
+    cursor: pointer !important;
+    z-index: 10 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: auto !important; 
+    height: auto !important;
+    box-shadow: none !important;
+    display: inline-block !important;
+    transition: transform 0.2s ease !important; 
+}
+
+.btn-editar:hover { transform: scale(1.2) !important; }

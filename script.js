@@ -189,8 +189,7 @@ function renderizarPreview() {
                 fotoCtx.restore();
 
             } else {
-                // AQUI TÁ A CORREÇÃO MÁGICA!
-                tempCtx.globalCompositeOperation = 'source-over'; // Reseta o pincel
+                tempCtx.globalCompositeOperation = 'source-over'; 
                 tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
                 
                 tempCtx.lineCap = 'round';
@@ -216,7 +215,6 @@ function renderizarPreview() {
                 tempCtx.globalCompositeOperation = 'source-in';
                 tempCtx.shadowBlur = 0; 
                 
-                // Cola a foto original com as medidas milimetricamente exatas da foto atual
                 tempCtx.drawImage(fotoOriginal, offsetX, offsetY, newWidth, newHeight);
                 
                 fotoCtx.globalCompositeOperation = 'source-over';
@@ -252,6 +250,18 @@ function adicionarNaFolha() {
         return;
     }
 
+    // 1. SALVA O ESTADO ATUAL (A "mochila" de dados do crachá)
+    const crachaState = {
+        fotoAtualSrc: fotoAtual.src,
+        fotoOriginalSrc: fotoOriginal ? fotoOriginal.src : null,
+        nome: document.getElementById('nomeInput').value,
+        setor: document.getElementById('setorInput').value,
+        zoom: document.getElementById('zoomInput').value,
+        moveX: document.getElementById('moveXInput').value,
+        moveY: document.getElementById('moveYInput').value,
+        paths: JSON.parse(JSON.stringify(eraserPaths)) // Salva todos os traços da borracha
+    };
+
     const previewCanvas = document.getElementById('previewCanvas');
     const folhaA4 = document.getElementById('folhaA4');
 
@@ -269,15 +279,52 @@ function adicionarNaFolha() {
     btnExcluir.className = 'btn-excluir';
     btnExcluir.innerHTML = '🗑️'; 
     btnExcluir.title = "Remover este crachá";
-    
     btnExcluir.onclick = function() {
         divCracha.remove(); 
     };
 
+    // ==========================================
+    // NOVO BOTÃO DE EDITAR (O 🔁 Mágico)
+    // ==========================================
+    const btnEditar = document.createElement('span');
+    btnEditar.className = 'btn-editar';
+    btnEditar.innerHTML = '🔁';
+    btnEditar.title = "Voltar para edição";
+    btnEditar.onclick = function() {
+        // Pega as imagens de volta da mochila
+        fotoAtual = new Image();
+        fotoOriginal = new Image();
+        
+        fotoAtual.onload = () => {
+            renderizarPreview(); // Atualiza a tela só quando a foto carregar
+        };
+        
+        fotoAtual.src = crachaState.fotoAtualSrc;
+        if (crachaState.fotoOriginalSrc) {
+            fotoOriginal.src = crachaState.fotoOriginalSrc;
+        }
+
+        // Puxa os dados pros inputs esquerdos
+        document.getElementById('nomeInput').value = crachaState.nome;
+        document.getElementById('setorInput').value = crachaState.setor;
+        document.getElementById('zoomInput').value = crachaState.zoom;
+        document.getElementById('moveXInput').value = crachaState.moveX;
+        document.getElementById('moveYInput').value = crachaState.moveY;
+
+        // Recupera a borracha
+        eraserPaths = crachaState.paths;
+        currentStroke = [];
+        
+        // Remove ele da folha (já que ele voltou pra tela principal)
+        divCracha.remove();
+    };
+
     divCracha.appendChild(novoCracha);
+    divCracha.appendChild(btnEditar);
     divCracha.appendChild(btnExcluir);
     folhaA4.appendChild(divCracha);
 
+    // Limpa a tela principal para o próximo crachá
     document.getElementById('fotoInput').value = '';
     document.getElementById('nomeInput').value = '';
     document.getElementById('setorInput').value = '';
@@ -288,8 +335,9 @@ function adicionarNaFolha() {
 function exportarFolha() {
     const folha = document.getElementById('folhaA4');
     
-    const botoesExcluir = document.querySelectorAll('.btn-excluir');
-    botoesExcluir.forEach(btn => {
+    // Esconde a lixeira E o botão de voltar antes de tirar a "foto" da folha
+    const botoes = document.querySelectorAll('.btn-excluir, .btn-editar');
+    botoes.forEach(btn => {
         btn.style.setProperty('display', 'none', 'important');
     });
     
@@ -299,7 +347,8 @@ function exportarFolha() {
         link.href = canvas.toDataURL("image/png");
         link.click();
         
-        botoesExcluir.forEach(btn => {
+        // Devolve os botões pra tela depois que baixou
+        botoes.forEach(btn => {
             btn.style.setProperty('display', 'inline-block', 'important');
         });
     });
