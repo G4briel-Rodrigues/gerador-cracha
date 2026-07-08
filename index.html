@@ -57,19 +57,22 @@
 
             <button onclick="limparBorracha()" style="background-color: #dc3545; margin-top: 10px;">Desfazer Borracha</button>
         </div>
-
-        <button class="btn-adicionar" onclick="adicionarNaFolha()">4. Adicionar à Folha A4 ➔</button>
-        <hr>
-        <button class="btn-exportar" onclick="exportarFolha()">⬇ Exportar Folha em PNG</button>
     </div>
 
     <div class="area-preview">
-        <canvas id="previewCanvas"></canvas>
+        <div class="preview-wrapper">
+            <canvas id="previewCanvas"></canvas>
+            
+            <div class="botoes-finais">
+                <button class="btn-adicionar" onclick="adicionarNaFolha()">4. Adicionar à Folha A4 ➔</button>
+                <button class="btn-exportar" onclick="exportarFolha()">⬇ Exportar Folha em PNG</button>
+            </div>
+        </div>
     </div>
 
     <div class="area-impressao">
         <div id="folhaA4" class="folha-a4">
-            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>

@@ -56,16 +56,44 @@ button:hover { background-color: #0056b3; }
 .btn-exportar { background-color: #28a745; }
 .btn-exportar:hover { background-color: #218838; }
 
+/* ========================================= */
+/* ÁREA DO MEIO MODIFICADA (Preview e Botões) */
+/* ========================================= */
 .area-preview {
     background: #1e1e1e;
-    padding: 30px; 
+    padding: 40px 30px 30px 30px; /* Um pouco mais de respiro no topo */
     border-radius: 8px;
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* A MÁGICA: Empurra o crachá lá pro topo */
     justify-content: center;
-    /* Adicionamos isso para o painel do meio poder crescer bastante */
     flex-grow: 0.5; 
+    overflow-y: auto;
+    max-height: 90vh; /* Mantém o tamanho alinhado com a área da folha A4 */
 }
+
+/* Caixa invisível que segura o crachá em cima e os botões embaixo */
+.preview-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+/* Container dos botões embaixo do crachá */
+.botoes-finais {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; 
+    margin-top: 25px; /* Descola os botões do crachá */
+    width: 100%;
+    max-width: 480px; /* Garante que os botões fiquem com a mesma largura da imagem */
+}
+
+.botoes-finais button {
+    width: 100%;
+    margin-bottom: 0; /* Tira margem extra do botão padrão aqui dentro */
+}
+/* ========================================= */
 
 #previewCanvas {
     width: 480px; /* A MÁGICA AQUI: Quase o dobro do tamanho antigo (250px)! */
