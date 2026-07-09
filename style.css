@@ -124,18 +124,22 @@ button:hover { background-color: #0056b3; }
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
 
+/* ========================================= */
+/* TAMANHO EXATO DO CRACHÁ PARA A GRÁFICA */
+/* ========================================= */
 .cracha-item {
     position: relative;
-    width: 222px; 
+    width: 204px; /* A MÁGICA DOS 54mm AQUI */
     display: inline-block;
 }
 
 .cracha-item canvas {
     width: 100%;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    border-radius: 0px; /* Sem cantos redondos para a gráfica cortar certo */
+    box-shadow: none; /* Sem sombreado fantasma no arquivo final */
     display: block;
 }
+/* ========================================= */
 
 .btn-excluir {
     position: absolute !important;
