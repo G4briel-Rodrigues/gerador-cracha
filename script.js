@@ -341,7 +341,12 @@ function exportarFolha() {
         btn.style.setProperty('display', 'none', 'important');
     });
     
-    html2canvas(folha, { scale: 3.12342 }).then(canvas => { 
+    // <-- CORREÇÃO: Força a largura e altura milimetricamente perfeitas do papel
+    html2canvas(folha, { 
+        scale: 3.12342,
+        width: 794,
+        height: 1123 
+    }).then(canvas => { 
         const link = document.createElement('a');
         link.download = 'crachas_prontos_grafica.png';
         link.href = canvas.toDataURL("image/png");
