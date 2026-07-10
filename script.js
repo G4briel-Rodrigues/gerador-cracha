@@ -10,6 +10,15 @@ let eraserPaths = [];
 let currentStroke = [];
 let currentMode = 'erase'; 
 
+// --- VARIÁVEL E FUNÇÃO PARA ROTAÇÃO ---
+let currentRotation = 0; 
+function setRotation(value) {
+    currentRotation = parseInt(value);
+    document.getElementById('rotateVal').innerText = currentRotation + '°';
+    renderizarPreview();
+}
+window.setRotation = setRotation; // Expõe para o HTML
+
 function setMode(mode) {
     currentMode = mode;
     if (mode === 'erase') {
@@ -24,6 +33,7 @@ function setMode(mode) {
         document.getElementById('btnErase').style.backgroundColor = '#555'; 
     }
 }
+window.setMode = setMode;
 
 async function processarFoto() {
     const fileInput = document.getElementById('fotoInput').files[0];
@@ -50,7 +60,10 @@ async function processarFoto() {
         fotoAtual.src = fotoSemFundoUrl;
         
         fotoAtual.onload = () => {
+            // Reseta controles
             document.getElementById('zoomInput').value = 1;
+            document.getElementById('rotateInput').value = 0; 
+            setRotation(0); 
             document.getElementById('moveXInput').value = 0;
             document.getElementById('moveYInput').value = 0;
             
@@ -63,15 +76,19 @@ async function processarFoto() {
         msg.style.display = 'none';
     }
 }
+window.processarFoto = processarFoto;
 
 function getFotoTransform() {
     const canvas = document.getElementById('previewCanvas');
     const centroX = canvas.width / 2;
-    const centroY = 880;              
+    // Puxado para 998 para compensar o tamanho maior de 1016px (sangria de 1cm)
+    const centroY = 998;              
     const zoom = parseFloat(document.getElementById('zoomInput').value);
+    const rotation = currentRotation; // Pega rotação atual
     const moveX = parseInt(document.getElementById('moveXInput').value);
     const moveY = parseInt(document.getElementById('moveYInput').value);
-    const tamanhoBase = 780; 
+    // Base de 1016 para garantir a sangria de 1cm de cada lado
+    const tamanhoBase = 1016; 
     
     let scale = 1;
     if (fotoAtual) {
@@ -84,7 +101,7 @@ function getFotoTransform() {
     const offsetX = (centroX - (newWidth / 2)) + moveX;
     const offsetY = (centroY - (newHeight / 2)) + moveY;
     
-    return { scale, offsetX, offsetY, newWidth, newHeight };
+    return { scale, offsetX, offsetY, newWidth, newHeight, rotation };
 }
 
 function addPoint(e) {
@@ -98,8 +115,19 @@ function addPoint(e) {
     
     const transform = getFotoTransform();
     
-    const localX = (mouseX - transform.offsetX) / transform.scale;
-    const localY = (mouseY - transform.offsetY) / transform.scale;
+    // Cálculo para a borracha funcionar mesmo com a foto girada
+    const centerX = transform.offsetX + transform.newWidth / 2;
+    const centerY = transform.offsetY + transform.newHeight / 2;
+    
+    const centeredX = mouseX - centerX;
+    const centeredY = mouseY - centerY;
+    
+    const angle = transform.rotation * Math.PI / 180;
+    const localMouseX = centeredX * Math.cos(-angle) - centeredY * Math.sin(-angle);
+    const localMouseY = centeredX * Math.sin(-angle) + centeredY * Math.cos(-angle);
+    
+    const localX = (localMouseX + transform.newWidth / 2) / transform.scale;
+    const localY = (localMouseY + transform.newHeight / 2) / transform.scale;
     
     const size = document.getElementById('brushSize').value;
     const soft = document.getElementById('brushSoft').value; 
@@ -137,6 +165,7 @@ function limparBorracha() {
     currentStroke = [];
     renderizarPreview();
 }
+window.limparBorracha = limparBorracha;
 
 function renderizarPreview() {
     const canvas = document.getElementById('previewCanvas');
@@ -159,9 +188,14 @@ function renderizarPreview() {
         tempCanvas.height = canvas.height;
         const tempCtx = tempCanvas.getContext('2d');
 
-        const { scale, offsetX, offsetY, newWidth, newHeight } = getFotoTransform();
+        const { scale, offsetX, offsetY, newWidth, newHeight, rotation } = getFotoTransform();
 
-        fotoCtx.drawImage(fotoAtual, offsetX, offsetY, newWidth, newHeight);
+        // Desenha a foto girada
+        fotoCtx.save();
+        fotoCtx.translate(offsetX + newWidth / 2, offsetY + newHeight / 2);
+        fotoCtx.rotate(rotation * Math.PI / 180);
+        fotoCtx.drawImage(fotoAtual, -newWidth / 2, -newHeight / 2, newWidth, newHeight);
+        fotoCtx.restore();
 
         const drawStroke = (stroke) => {
             if (stroke.length === 0) return;
@@ -172,8 +206,10 @@ function renderizarPreview() {
                 fotoCtx.lineJoin = 'round';
 
                 fotoCtx.save();
-                fotoCtx.translate(offsetX, offsetY);
+                fotoCtx.translate(offsetX + newWidth / 2, offsetY + newHeight / 2);
+                fotoCtx.rotate(rotation * Math.PI / 180);
                 fotoCtx.scale(scale, scale);
+                fotoCtx.translate(-newWidth / 2 / scale, -newHeight / 2 / scale);
 
                 fotoCtx.beginPath();
                 fotoCtx.lineWidth = stroke[0].size / scale; 
@@ -196,8 +232,10 @@ function renderizarPreview() {
                 tempCtx.lineJoin = 'round';
                 
                 tempCtx.save();
-                tempCtx.translate(offsetX, offsetY);
+                tempCtx.translate(offsetX + newWidth / 2, offsetY + newHeight / 2);
+                tempCtx.rotate(rotation * Math.PI / 180);
                 tempCtx.scale(scale, scale);
+                tempCtx.translate(-newWidth / 2 / scale, -newHeight / 2 / scale);
 
                 tempCtx.beginPath();
                 tempCtx.lineWidth = stroke[0].size / scale; 
@@ -215,7 +253,11 @@ function renderizarPreview() {
                 tempCtx.globalCompositeOperation = 'source-in';
                 tempCtx.shadowBlur = 0; 
                 
-                tempCtx.drawImage(fotoOriginal, offsetX, offsetY, newWidth, newHeight);
+                tempCtx.save();
+                tempCtx.translate(offsetX + newWidth / 2, offsetY + newHeight / 2);
+                tempCtx.rotate(rotation * Math.PI / 180);
+                tempCtx.drawImage(fotoOriginal, -newWidth / 2, -newHeight / 2, newWidth, newHeight);
+                tempCtx.restore();
                 
                 fotoCtx.globalCompositeOperation = 'source-over';
                 fotoCtx.drawImage(tempCanvas, 0, 0);
@@ -238,11 +280,13 @@ function renderizarPreview() {
     const eixoXTexto = (canvas.width / 2) - 15; 
     
     ctx.font = 'bold 95px "Montserrat", sans-serif'; 
+    // CORRIGIDO: Textos de volta para a altura perfeita original
     ctx.fillText(nome, eixoXTexto, 1550, canvas.width * 0.85); 
     
     ctx.font = '300 70px "Montserrat", sans-serif'; 
     ctx.fillText(setor, eixoXTexto, 1640, canvas.width * 0.85); 
 }
+window.renderizarPreview = renderizarPreview;
 
 function adicionarNaFolha() {
     if (!fotoAtual) {
@@ -250,16 +294,17 @@ function adicionarNaFolha() {
         return;
     }
 
-    // 1. SALVA O ESTADO ATUAL (A "mochila" de dados do crachá)
+    // Mochila salva todos os dados, inclusive a ROTAÇÃO
     const crachaState = {
         fotoAtualSrc: fotoAtual.src,
         fotoOriginalSrc: fotoOriginal ? fotoOriginal.src : null,
         nome: document.getElementById('nomeInput').value,
         setor: document.getElementById('setorInput').value,
         zoom: document.getElementById('zoomInput').value,
+        rotation: currentRotation, 
         moveX: document.getElementById('moveXInput').value,
         moveY: document.getElementById('moveYInput').value,
-        paths: JSON.parse(JSON.stringify(eraserPaths)) // Salva todos os traços da borracha
+        paths: JSON.parse(JSON.stringify(eraserPaths)) 
     };
 
     const previewCanvas = document.getElementById('previewCanvas');
@@ -283,20 +328,17 @@ function adicionarNaFolha() {
         divCracha.remove(); 
     };
 
-    // ==========================================
-    // NOVO BOTÃO DE EDITAR (O 🔁 Mágico)
-    // ==========================================
+    // Botão Voltar para Edição (O 🔁 Mágico)
     const btnEditar = document.createElement('span');
     btnEditar.className = 'btn-editar';
     btnEditar.innerHTML = '🔁';
     btnEditar.title = "Voltar para edição";
     btnEditar.onclick = function() {
-        // Pega as imagens de volta da mochila
         fotoAtual = new Image();
         fotoOriginal = new Image();
         
         fotoAtual.onload = () => {
-            renderizarPreview(); // Atualiza a tela só quando a foto carregar
+            renderizarPreview(); 
         };
         
         fotoAtual.src = crachaState.fotoAtualSrc;
@@ -304,18 +346,18 @@ function adicionarNaFolha() {
             fotoOriginal.src = crachaState.fotoOriginalSrc;
         }
 
-        // Puxa os dados pros inputs esquerdos
+        // Recupera valores para os inputs
         document.getElementById('nomeInput').value = crachaState.nome;
         document.getElementById('setorInput').value = crachaState.setor;
         document.getElementById('zoomInput').value = crachaState.zoom;
+        document.getElementById('rotateInput').value = crachaState.rotation; 
+        setRotation(crachaState.rotation); // Atualiza na tela
         document.getElementById('moveXInput').value = crachaState.moveX;
         document.getElementById('moveYInput').value = crachaState.moveY;
 
-        // Recupera a borracha
         eraserPaths = crachaState.paths;
         currentStroke = [];
         
-        // Remove ele da folha (já que ele voltou pra tela principal)
         divCracha.remove();
     };
 
@@ -331,17 +373,17 @@ function adicionarNaFolha() {
     fotoAtual = null;
     limparBorracha(); 
 }
+window.adicionarNaFolha = adicionarNaFolha;
 
 function exportarFolha() {
     const folha = document.getElementById('folhaA4');
     
-    // Esconde a lixeira E o botão de voltar antes de tirar a "foto" da folha
     const botoes = document.querySelectorAll('.btn-excluir, .btn-editar');
     botoes.forEach(btn => {
         btn.style.setProperty('display', 'none', 'important');
     });
     
-    // <-- CORREÇÃO: Força a largura e altura milimetricamente perfeitas do papel
+    // Configuração blindada para A4 perfeito
     html2canvas(folha, { 
         scale: 3.12342,
         width: 794,
@@ -352,12 +394,12 @@ function exportarFolha() {
         link.href = canvas.toDataURL("image/png");
         link.click();
         
-        // Devolve os botões pra tela depois que baixou
         botoes.forEach(btn => {
             btn.style.setProperty('display', 'inline-block', 'important');
         });
     });
 }
+window.exportarFolha = exportarFolha;
 
 window.onload = () => {
     iniciarEventosBorracha();

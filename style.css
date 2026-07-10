@@ -129,7 +129,7 @@ button:hover { background-color: #0056b3; }
 /* ========================================= */
 .cracha-item {
     position: relative;
-    width: 204px; /* A MÁGICA DOS 54mm AQUI */
+    width: 280px; /* A MÁGICA DOS 280px para dar 1cm de sangria AQUI */
     display: inline-block;
 }
 

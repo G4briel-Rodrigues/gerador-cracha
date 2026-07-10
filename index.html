@@ -33,6 +33,10 @@
             <label>Zoom da Foto:</label>
             <input type="range" id="zoomInput" min="0.2" max="5" step="0.05" value="1" oninput="renderizarPreview()">
             
+            <!-- NOVO: BARRA DE GIRAR FOTO (Exatamente onde você pediu) -->
+            <label>Girar Foto: <span id="rotateVal">0°</span></label>
+            <input type="range" id="rotateInput" min="-180" max="180" value="0" step="1" oninput="setRotation(this.value)">
+            
             <label>Mover para os Lados (↔):</label>
             <input type="range" id="moveXInput" min="-2000" max="2000" value="0" step="10" oninput="renderizarPreview()">
             
