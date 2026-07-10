@@ -61,14 +61,14 @@ button:hover { background-color: #0056b3; }
 /* ========================================= */
 .area-preview {
     background: #1e1e1e;
-    padding: 40px 30px 30px 30px; /* Um pouco mais de respiro no topo */
+    padding: 40px 30px 30px 30px; 
     border-radius: 8px;
     display: flex;
-    align-items: flex-start; /* A MÁGICA: Empurra o crachá lá pro topo */
+    align-items: flex-start; 
     justify-content: center;
     flex-grow: 0.5; 
     overflow-y: auto;
-    max-height: 90vh; /* Mantém o tamanho alinhado com a área da folha A4 */
+    max-height: 90vh; 
 }
 
 /* Caixa invisível que segura o crachá em cima e os botões embaixo */
@@ -84,24 +84,24 @@ button:hover { background-color: #0056b3; }
     display: flex;
     flex-direction: column;
     gap: 15px; 
-    margin-top: 25px; /* Descola os botões do crachá */
+    margin-top: 25px; 
     width: 100%;
-    max-width: 480px; /* Garante que os botões fiquem com a mesma largura da imagem */
+    max-width: 480px; 
 }
 
 .botoes-finais button {
     width: 100%;
-    margin-bottom: 0; /* Tira margem extra do botão padrão aqui dentro */
+    margin-bottom: 0; 
 }
 /* ========================================= */
 
 #previewCanvas {
-    width: 480px; /* A MÁGICA AQUI: Quase o dobro do tamanho antigo (250px)! */
+    width: 480px; 
     max-width: 100%; 
     border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.8); /* Deixei a sombra mais elegante */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.8); 
     cursor: crosshair; 
-    transition: transform 0.2s ease; /* Efeito suave se você quiser colocar hover depois */
+    transition: transform 0.2s ease; 
 }
 
 .area-impressao {
@@ -113,7 +113,7 @@ button:hover { background-color: #0056b3; }
 .folha-a4 {
     background: white;
     width: 794px; 
-    height: 1123px; /* <-- AQUI ESTÁ A CORREÇÃO! Travado no tamanho exato do A4 */
+    height: 1123px; /* Travado no tamanho exato do A4 */
     padding: 30px; 
     box-sizing: border-box;
     display: flex;
@@ -125,18 +125,19 @@ button:hover { background-color: #0056b3; }
 }
 
 /* ========================================= */
-/* TAMANHO EXATO DO CRACHÁ PARA A GRÁFICA */
+/* TAMANHO DO CRACHÁ COM "SANGRIA" PARA CORTE */
 /* ========================================= */
 .cracha-item {
     position: relative;
-    width: 280px; /* A MÁGICA DOS 280px para dar 1cm de sangria AQUI */
+    /* Passou de 204px para 220px! Isso dá exatamente os milímetros extras pra cortar, e ainda cabem 3 na linha */
+    width: 220px; 
     display: inline-block;
 }
 
 .cracha-item canvas {
     width: 100%;
-    border-radius: 0px; /* Sem cantos redondos para a gráfica cortar certo */
-    box-shadow: none; /* Sem sombreado fantasma no arquivo final */
+    border-radius: 0px; 
+    box-shadow: none; 
     display: block;
 }
 /* ========================================= */
@@ -162,12 +163,12 @@ button:hover { background-color: #0056b3; }
 .btn-excluir:hover { transform: scale(1.2) !important; }
 
 /* ========================================= */
-/* BOTÃO DE EDITAR / VOLTAR (NOVO) */
+/* BOTÃO DE EDITAR / VOLTAR */
 /* ========================================= */
 .btn-editar {
     position: absolute !important;
     top: 5px !important;
-    left: 5px !important; /* Lado esquerdo para não encostar na lixeira */
+    left: 5px !important; 
     background: transparent !important; 
     border: none !important;
     font-size: 24px !important; 
